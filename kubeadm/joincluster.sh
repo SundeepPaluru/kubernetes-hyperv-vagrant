@@ -1,0 +1,1 @@
+kubeadm join 192.168.99.99:6443 --token jsngv8.3ltn77u7j9sey6xn     --discovery-token-ca-cert-hash sha256:a1daac8d47ae7d9c2981b0ca4731cca83231b485d4c84378c1d9e3fd233381f2  --ignore-preflight-errors=all
