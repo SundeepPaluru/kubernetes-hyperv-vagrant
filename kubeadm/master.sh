@@ -2,7 +2,7 @@
 
 echo "[Task1]Installing Docker on Master Node"
 sudo apt-get update > /dev/null 2>&1
-sudo apt-get install -y docker.io curl apt-transport-https  > /dev/null 2>&1
+sudo apt-get install -y docker.io curl apt-transport-https powerline > /dev/null 2>&1
 
 echo "[TASK 1] Update /etc/hosts file"
 cat >>/etc/hosts<<EOF

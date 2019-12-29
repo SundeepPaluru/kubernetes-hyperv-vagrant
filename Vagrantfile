@@ -96,6 +96,14 @@ Vagrant.configure("2") do |config|
     node.vm.provision :reload
     node.vm.provision :shell, :inline => "sudo swapoff -a", run: "always"
     node.vm.provision "shell", inline: "echo 'sudo kubectl apply -n kube-system -f /home/vagrant/net.yaml' | at now", privileged: false
+    $script = <<-SCRIPT
+cat >> /home/vagrant/.bashrc <<EOF
+if [ -f /usr/share/powerline/bindings/bash/powerline.sh ]; then
+  source /usr/share/powerline/bindings/bash/powerline.sh
+fi
+EOF
+SCRIPT
+    node.vm.provision "shell", inline: $script
     node.trigger.after :up do |trigger|          
           trigger.run = {inline: "scp -i .vagrant\\machines\\master\\hyperv\\private_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@192.168.99.99:/home/vagrant/joincluster.sh ./kubeadm/"}          
     end
