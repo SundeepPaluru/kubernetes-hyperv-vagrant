@@ -104,6 +104,7 @@ fi
 EOF
 SCRIPT
     node.vm.provision "shell", inline: $script
+    node.vm.provision "shell", inline: "echo 'source /usr/share/powerline/bindings/tmux/powerline.conf' > /home/vagrant/.tmux.conf"
     node.trigger.after :up do |trigger|          
           trigger.run = {inline: "scp -i .vagrant\\machines\\master\\hyperv\\private_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@192.168.99.99:/home/vagrant/joincluster.sh ./kubeadm/"}          
     end
