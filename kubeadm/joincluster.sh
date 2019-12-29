@@ -1,1 +1,1 @@
-kubeadm join 192.168.99.99:6443 --token jsngv8.3ltn77u7j9sey6xn     --discovery-token-ca-cert-hash sha256:a1daac8d47ae7d9c2981b0ca4731cca83231b485d4c84378c1d9e3fd233381f2  --ignore-preflight-errors=all
+kubeadm join 192.168.99.99:6443 --token xby8sd.uaq7ww8airzcr3qu     --discovery-token-ca-cert-hash sha256:0baf6142168c53a7a1964c477a1fbbb6dfc2321bc9f7b3321205adb267c9f79c  --ignore-preflight-errors=all

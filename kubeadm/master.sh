@@ -38,6 +38,6 @@ sudo mkdir -p /home/vagrant/.kube
 sudo cp -i -f /etc/kubernetes/admin.conf /home/vagrant/.kube/config
 sudo chown $(id vagrant -u):$(id vagrant -g) /home/vagrant/.kube/config
 sudo swapoff -a
-sleep 10
+sleep 30
 joinCommand=$(kubeadm token create --print-join-command 2>/dev/null)
 echo "$joinCommand --ignore-preflight-errors=all" > /home/vagrant/joincluster.sh

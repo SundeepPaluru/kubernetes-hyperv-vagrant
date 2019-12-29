@@ -87,21 +87,17 @@ Vagrant.configure("2") do |config|
     node.vm.hostname = "master"    
     node.vm.network "forwarded_port", guest: 22, host: 2730
     node.vm.synced_folder ".", "/vagrant", disabled: true
-    #node.vm.provision "setup-hosts", :type => "shell", :path => "ubuntu/vagrant/setup-hosts.sh" do |s|
-    #  s.args = ["enp0s8"]
-    #end
-    #node.vm.provision "shell", inline: "sudo rm /etc/netplan/1-netcfg.yaml -v"
     node.vm.provision "file", source: ".\\kubeadm\\01-netcfg.yaml", destination: "~/"
     node.vm.provision "file", source: ".\\kubeadm\\net.yaml", destination: "~/"
     node.vm.provision "shell", inline: "sudo mv -f /home/vagrant/01-netcfg.yaml /etc/netplan/ -v"
-    node.vm.provision "shell", inline: "sudo netplan apply"    
+    node.vm.provision "shell", inline: "sudo netplan apply" 
+    node.vm.provision :shell, :inline => "sudo swapoff -a", run: "always"
+    node.vm.provision "Running-Kubeadm", type: "shell", :path => "kubeadm/master.sh" 
     node.vm.provision :reload
-    node.vm.provision "Running-Kubeadm", type: "shell", :path => "kubeadm/master.sh"  
-    
-    #node.vm.provision "shell", inline: "echo 'sudo kubectl apply -n kube-system -f /home/vagrant/net.yaml' | at now + 5 min"
+    node.vm.provision :shell, :inline => "sudo swapoff -a", run: "always"
+    node.vm.provision "shell", inline: "echo 'sudo kubectl apply -n kube-system -f /home/vagrant/net.yaml' | at now", privileged: false
     node.trigger.after :up do |trigger|          
           trigger.run = {inline: "scp -i .vagrant\\machines\\master\\hyperv\\private_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no vagrant@192.168.99.99:/home/vagrant/joincluster.sh ./kubeadm/"}          
-          trigger.run = {inline: "echo 'sudo kubectl apply -n kube-system -f /home/vagrant/net.yaml' | at now"}
     end
   end
 
@@ -109,31 +105,27 @@ Vagrant.configure("2") do |config|
   (1..NUM_WORKER_NODE).each do |i|
     
         config.vm.define "worker#{i}" do |node|
-        IPADD = "\'sed 's/192.168.99.99/192.168.99.8#{i}/' ./kubeadm/01-netcfg.yaml \'"
         node.vm.provider "hyperv" do |h|        
             h.memory = 2048
             h.cpus = 2
         h.vm_integration_services = {
           guest_service_interface: true			
         }
-        h.vmname = "worker#{i}"
-        
-        end
-        node.trigger.before :up do |trigger|
-          #trigger.run = {inline: "bash -c \'sed \'s\/192.168.99.99\/192.168.99.8#{i}\/\' ./kubeadm/01-netcfg.yaml > ./kubeadm-worker/01-netcfg.yaml\'"}
-          trigger.run = {inline: "bash -c 'echo #{IPADD} | bash -c > ./kubeadm-worker/01-netcfg.yaml'"}
-          #trigger.run = {inline: "#{IPADD}"}
-        end
+        h.vmname = "worker#{i}"        
+        end      
         node.vm.network "public_network", ip: "192.168.99.8#{i}", bridge: "k8s-Switch"
         node.vm.hostname = "worker#{i}"    
         node.vm.network "forwarded_port", guest: 22, host: "272#{i}"
-        node.vm.synced_folder ".", "/vagrant", disabled: true
-        node.vm.provision "file", source: ".\\kubeadm-worker\\01-netcfg.yaml", destination: "~/"
-        node.vm.provision "shell", inline: "sudo mv -f /home/vagrant/01-netcfg.yaml /etc/netplan/ -v"
-        node.vm.provision "shell", inline: "sudo netplan apply"    
+        node.vm.synced_folder ".", "/vagrant", disabled: true        
+        node.vm.provision "file", source: ".\\kubeadm\\01-netcfg.yaml", destination: "/home/vagrant/"
+        node.vm.provision "shell", inline: "sed 's/192.168.99.99/192.168.99.8#{i}/' /home/vagrant/01-netcfg.yaml > /tmp/01-netcfg.yaml"
+        node.vm.provision "shell", inline: "sudo mv -f /tmp/01-netcfg.yaml /etc/netplan/ -v"
+        node.vm.provision "shell", inline: "sudo netplan apply"
+        node.vm.provision "shell", inline: "sleep 30"
+        node.vm.provision :reload
+        node.vm.provision "shell", inline: "sudo swapoff -a", run: "always"      
         node.vm.provision "Running Worker#{i}", type: "shell", :path => "kubeadm-worker/worker.sh"
-        node.vm.provision "Joining to cluster", type: "shell", :path => "kubeadm/joincluster.sh"          
+        node.vm.provision "Joining to cluster", type: "shell", :path => "kubeadm/joincluster.sh"         
       end
     end
-  
 end
