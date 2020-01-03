@@ -1,2 +1,4 @@
 .vagrant/
 kubeadm/joincluster.sh
+.vscode/
+index.html
