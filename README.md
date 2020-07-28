@@ -15,6 +15,7 @@ Make sure you have atleast 6GB RAM, To Run 1 Master and 2 Worker Nodes
 3) Run PowerShell as administrator
 4) CD towards Cloned Folder
 5) Run Deploy-K8s.ps1 Script
+  Note: In case if you face script exectution error. Run following command Set-ExecutionPolicy -ExecutionPolicy Unrestricted, and than try running the script.
   
 # Post VM Build
 1) Login to Master Node using "Vagrant ssh master"
